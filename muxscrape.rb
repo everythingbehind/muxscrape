@@ -11,8 +11,12 @@ class MuxtapeDatabase
       drop_table if recreate_table
       @db.query( 
       %{
-        CREATE TABLE muxtapes
-        (name varchar(20) primary key, url varchar(100), fans integer);
+        CREATE TABLE muxtapes(
+          name varchar(20) primary key, 
+          title varchar(50),
+          description varchar(200), 
+          url varchar(100), 
+          fans integer);
       }) 
     rescue SQLite3::SQLException
     end
@@ -38,12 +42,12 @@ class MuxtapeDatabase
     ).to_i > 0
   end
   
-  def create_muxtape(name, url, fans)
+  def create_muxtape(name, title, description, url, fans)
     @db.execute(
     %{
-      INSERT INTO muxtapes(name, url, fans)
-      VALUES(?, ?, ?);
-    }, name, url, fans)
+      INSERT INTO muxtapes(name, title, description, url, fans)
+      VALUES(?, ?, ?, ?, ?);
+    }, name, title, description, url, fans)
   end
   
   def update_fans(name, fans)
@@ -65,7 +69,7 @@ class MuxtapeDatabase
   end
 end
 
-db = MuxtapeDatabase.new
+db = MuxtapeDatabase.new(true)
 
 25.times do
   p "Reloading muxtape.com..."
@@ -77,11 +81,13 @@ db = MuxtapeDatabase.new
       link_url = link.attributes['href']
       name = link.inner_html
       muxtape = Hpricot(open(link_url))
+      title = muxtape.at('div.flag/h1') && muxtape.at('div.flag/h1').inner_html
+      description = muxtape.at('div.flag/h2') && muxtape.at('div.flag/h2').inner_html
       fans = muxtape.at('a.drawer_control') && muxtape.at('a.drawer_control').inner_html
       fan_count = fans ? fans.split.first.to_i : 0
       if !db.muxtape_exists?(name)
         puts "Adding #{name}'s muxtape to database"
-        db.create_muxtape(name, link_url, fan_count)
+        db.create_muxtape(name, title, description, link_url, fan_count)
       else
         puts "Updating #{name}'s muxtape in database"
         db.update_fans(name, fan_count)
