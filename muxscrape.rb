@@ -1,7 +1,9 @@
+#!/usr/bin/env ruby 
 require 'rubygems'
 require 'open-uri'
 require 'hpricot'
 require 'sqlite3'
+require 'trollop'
 
 class MuxtapeDatabase
 
@@ -69,9 +71,14 @@ class MuxtapeDatabase
   end
 end
 
+opts = Trollop::options do
+  opt :refreshes, "How many times to refresh the muxtape.com page", :default => 10
+end
+
+refreshes = opts[:refreshes]
 db = MuxtapeDatabase.new(true)
 
-25.times do
+refreshes.times do
   p "Reloading muxtape.com..."
   doc = Hpricot(open("http://www.muxtape.com"))
   link_total = doc.search("ul.featured").search("a").length
