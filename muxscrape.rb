@@ -123,7 +123,7 @@ opts = Trollop::options do
 end
 
 refreshes = opts[:refreshes]
-db = MuxtapeDatabase.new(true)
+db = MuxtapeDatabase.new
 
 refreshes.times do
   puts "Refreshing muxtape.com..."
