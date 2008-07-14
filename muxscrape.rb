@@ -77,7 +77,6 @@ class MuxtapeDatabase
   end
   
   def add_songs(muxtape_id, songs)
-    p songs
     songs.each do |song|
       @db.execute(
       %{
