@@ -120,10 +120,12 @@ end
 
 opts = Trollop::options do
   opt :refreshes, "How many times to refresh the muxtape.com page", :default => 10
+  opt :rebuild_database, "Rebuild the database. Caution: All data will be lost.", :default => false
 end
 
 refreshes = opts[:refreshes]
-db = MuxtapeDatabase.new
+
+db = MuxtapeDatabase.new(opt[:rebuild_database])
 
 refreshes.times do
   puts "Refreshing muxtape.com..."
