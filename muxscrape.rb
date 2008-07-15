@@ -9,28 +9,30 @@ class MuxtapeDatabase
 
   def initialize(recreate_table=false)
     @db = SQLite3::Database.new("muxtape.db")
-    begin
-      drop_tables if recreate_table
-      @db.execute( 
-      %{
-        CREATE TABLE muxtapes(
-          id integer primary key,
-          name varchar(20), 
-          title varchar(50),
-          description varchar(200), 
-          url varchar(100), 
-          fans integer);
-      }) 
-      @db.execute( 
-      %{
-        CREATE TABLE songs(
-          id integer primary key,
-          muxtape_id integer,
-          artist varchar(100),
-          title varchar(100));
-      })
-    rescue SQLite3::SQLException
-      puts 'Database creation error...'
+    if recreate_table
+      begin
+        drop_tables
+        @db.execute( 
+        %{
+          CREATE TABLE muxtapes(
+            id integer primary key,
+            name varchar(20), 
+            title varchar(50),
+            description varchar(200), 
+            url varchar(100), 
+            fans integer);
+        }) 
+        @db.execute( 
+        %{
+          CREATE TABLE songs(
+            id integer primary key,
+            muxtape_id integer,
+            artist varchar(100),
+            title varchar(100));
+        })
+      rescue SQLite3::SQLException
+        puts 'Database creation error...'
+      end
     end
   end
   
@@ -125,7 +127,7 @@ end
 
 refreshes = opts[:refreshes]
 
-db = MuxtapeDatabase.new(opt[:rebuild_database])
+db = MuxtapeDatabase.new(opts[:rebuild_database])
 
 refreshes.times do
   puts "Refreshing muxtape.com..."
